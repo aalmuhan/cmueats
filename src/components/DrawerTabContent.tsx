@@ -1,11 +1,9 @@
-
 import { ExternalLink } from 'lucide-react';
 import { DateTime } from 'luxon';
+import { useContext, useState } from 'react';
 import { getTimeSlotsString } from '../util/time';
 import { DrawerContext } from '../contexts/DrawerContext';
 import css from './DrawerTabContent.module.css';
-import { useContext, useState } from 'react';
-
 
 function DrawerTabContent() {
     const dayOffsetFromSunday = DateTime.now().weekday % 7; // literally will be refreshed every second because location status is. This is fine
@@ -14,9 +12,7 @@ function DrawerTabContent() {
     const loc = drawerContext.drawerLocation;
 
     const [showModal, setShowModal] = useState(false);
-    const [userMessage, setUserMessage] = useState("");
-
-
+    const [userMessage, setUserMessage] = useState('');
 
     if (!loc) {
         return <div className={css.container} />;
@@ -117,23 +113,19 @@ function DrawerTabContent() {
 
             <div className={css['wrong-location-section']}>
                 <h4 className={css['section-header']}>Wrong Location?</h4>
-                <button
-                    type="button"
-                    className={css['wrong-location-button']}
-                    onClick={() => setShowModal(true)}
-
-                >
+                <button type="button" className={css['wrong-location-button']} onClick={() => setShowModal(true)}>
                     REPORT INCORRECT LOCATION
                 </button>
             </div>
 
-
             {showModal && (
                 <div className={css.locationEntryBackdrop}>
                     <div className={css.locationEntryBox}>
-                        <h3 className={css.locationEntryTitle}> What's wrong with this location? (Optional — press submit to skip)</h3>
+                        <h3 className={css.locationEntryTitle}>
+                            {' '}
+                            What&apos;s wrong with this location? (Optional — press submit to skip)
+                        </h3>
 
-                
                         <textarea
                             className={css.locationEntryInput}
                             value={userMessage}
@@ -143,16 +135,18 @@ function DrawerTabContent() {
 
                         <div className={css.locationEntryButtonRow}>
                             <button
+                                type="button"
                                 className={css.locationEntryCancel}
                                 onClick={() => {
                                     setShowModal(false);
-                                    setUserMessage("");
+                                    setUserMessage('');
                                 }}
                             >
                                 Cancel
                             </button>
 
                             <button
+                                type="button"
                                 className={css.locationEntrySubmit}
                                 onClick={async () => {
                                     const message =
@@ -161,30 +155,23 @@ function DrawerTabContent() {
                                             : `User reported incorrect location for ${loc.name}`;
 
                                     try {
-                                        const response = await fetch(
-                                            "http://localhost:5010/api/report-location",
-                                            {
-                                                method: "POST",
-                                                headers: { "Content-Type": "application/json" },
-                                                body: JSON.stringify({
-                                                    locationId: loc.conceptId,
-                                                    message,
-                                                }),
-                                            }
-                                        );
+                                        const response = await fetch('http://localhost:5010/api/report-location', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                                locationId: loc.conceptId,
+                                                message,
+                                            }),
+                                        });
 
                                         const data = await response.json();
 
                                         setShowModal(false);
-                                        setUserMessage("");
+                                        setUserMessage('');
 
-                                        alert(
-                                            data.success
-                                                ? "Thanks! Report submitted."
-                                                : "Error: " + data.error
-                                        );
+                                        alert(data.success ? 'Thanks! Report submitted.' : `Error: ${data.error}`);
                                     } catch (err) {
-                                        alert("Error contacting backend. Please try again later.");
+                                        alert('Error contacting backend. Please try again later.');
                                     }
                                 }}
                             >
@@ -195,10 +182,7 @@ function DrawerTabContent() {
                 </div>
             )}
         </div>
-
     );
-
-
 }
 
 export default DrawerTabContent;
