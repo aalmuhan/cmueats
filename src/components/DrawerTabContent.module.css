@@ -99,3 +99,34 @@
         text-decoration: underline;
     }
 }
+
+
+.wrong-location-section {
+    margin-top: 20px;
+    padding-top: 12px;
+    border-top: 1px
+
+
+}
+
+
+.wrong-location-button {
+    background: #ffeeac;
+    color: black;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+
+.wrong-location-button:hover {
+    background: #FFE680;
+    box-shadow: 0 0 12px 2px rgba(255, 170, 80, 0.55),
+                0 0 20px 4px rgba(255, 140, 40, 0.35);
+    border: 1px solid rgba(255, 180, 90, 0.7);
+    transform: translateY(-1px);
+}
