@@ -1,15 +1,22 @@
-import { useContext } from 'react';
+
 import { ExternalLink } from 'lucide-react';
 import { DateTime } from 'luxon';
 import { getTimeSlotsString } from '../util/time';
 import { DrawerContext } from '../contexts/DrawerContext';
 import css from './DrawerTabContent.module.css';
+import { useContext, useState } from 'react';
+
 
 function DrawerTabContent() {
     const dayOffsetFromSunday = DateTime.now().weekday % 7; // literally will be refreshed every second because location status is. This is fine
     const daysStartingFromSunday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const drawerContext = useContext(DrawerContext);
     const loc = drawerContext.drawerLocation;
+
+    const [showModal, setShowModal] = useState(false);
+    const [userMessage, setUserMessage] = useState("");
+
+
 
     if (!loc) {
         return <div className={css.container} />;
@@ -113,41 +120,85 @@ function DrawerTabContent() {
                 <button
                     type="button"
                     className={css['wrong-location-button']}
-                    onClick={async () => {
-                        try {
-                            const userMessage = prompt(
-                                "What's wrong with this location? (Optional - press OK to skip)",
-                            );
-                            if (userMessage === null) return;
+                    onClick={() => setShowModal(true)}
 
-                            const message = userMessage || `User reported incorrect location for ${loc.name}`;
-
-                            const response = await fetch('http://localhost:5010/api/report-location', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    locationId: loc.conceptId,
-                                    message,
-                                }),
-                            });
-
-                            const data = await response.json();
-
-                            if (data.success) {
-                                alert('Thanks! Report submitted.');
-                            } else {
-                                alert(`Backend rejected report: ${data.error || 'Unknown error'}`);
-                            }
-                        } catch {
-                            alert('Error contacting backend. Please try again later.');
-                        }
-                    }}
                 >
-                     REPORT INCORRECT LOCATION
+                    REPORT INCORRECT LOCATION
                 </button>
             </div>
+
+
+            {showModal && (
+                <div className={css.locationEntryBackdrop}>
+                    <div className={css.locationEntryBox}>
+                        <h3 className={css.locationEntryTitle}> What's wrong with this location? (Optional — press submit to skip)</h3>
+
+                
+                        <textarea
+                            className={css.locationEntryInput}
+                            value={userMessage}
+                            onChange={(e) => setUserMessage(e.target.value)}
+                            placeholder="Please describe the issue…"
+                        />
+
+                        <div className={css.locationEntryButtonRow}>
+                            <button
+                                className={css.locationEntryCancel}
+                                onClick={() => {
+                                    setShowModal(false);
+                                    setUserMessage("");
+                                }}
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                className={css.locationEntrySubmit}
+                                onClick={async () => {
+                                    const message =
+                                        userMessage.trim().length > 0
+                                            ? userMessage
+                                            : `User reported incorrect location for ${loc.name}`;
+
+                                    try {
+                                        const response = await fetch(
+                                            "http://localhost:5010/api/report-location",
+                                            {
+                                                method: "POST",
+                                                headers: { "Content-Type": "application/json" },
+                                                body: JSON.stringify({
+                                                    locationId: loc.conceptId,
+                                                    message,
+                                                }),
+                                            }
+                                        );
+
+                                        const data = await response.json();
+
+                                        setShowModal(false);
+                                        setUserMessage("");
+
+                                        alert(
+                                            data.success
+                                                ? "Thanks! Report submitted."
+                                                : "Error: " + data.error
+                                        );
+                                    } catch (err) {
+                                        alert("Error contacting backend. Please try again later.");
+                                    }
+                                }}
+                            >
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
+
     );
+
+
 }
 
 export default DrawerTabContent;
