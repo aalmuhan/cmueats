@@ -143,7 +143,7 @@ function DrawerTabContent() {
                         }
                     }}
                 >
-                    Report incorrect location
+                     REPORT INCORRECT LOCATION
                 </button>
             </div>
         </div>
