@@ -5,7 +5,6 @@ import { getTimeSlotsString } from '../util/time';
 import { DrawerContext } from '../contexts/DrawerContext';
 import css from './DrawerTabContent.module.css';
 
-
 function DrawerTabContent() {
     const dayOffsetFromSunday = DateTime.now().weekday % 7; // literally will be refreshed every second because location status is. This is fine
     const daysStartingFromSunday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -109,21 +108,23 @@ function DrawerTabContent() {
             {drawerContext.activeTab === 'menu' && renderMenu()}
             {drawerContext.activeTab === 'reviews' && <p>reviews</p>}
 
-
-            <div className={css["wrong-location-section"]}>
-                <h4 className={css["section-header"]}>Wrong Location?</h4>
+            <div className={css['wrong-location-section']}>
+                <h4 className={css['section-header']}>Wrong Location?</h4>
                 <button
-                    className={css["wrong-location-button"]}
+                    type="button"
+                    className={css['wrong-location-button']}
                     onClick={async () => {
                         try {
-                            const userMessage = prompt("What's wrong with this location? (Optional - press OK to skip)");
+                            const userMessage = prompt(
+                                "What's wrong with this location? (Optional - press OK to skip)",
+                            );
                             if (userMessage === null) return;
 
                             const message = userMessage || `User reported incorrect location for ${loc.name}`;
 
-                            const response = await fetch("http://localhost:5010/api/report-location", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
+                            const response = await fetch('http://localhost:5010/api/report-location', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
                                     locationId: loc.conceptId,
                                     message,
@@ -133,25 +134,20 @@ function DrawerTabContent() {
                             const data = await response.json();
 
                             if (data.success) {
-                                alert("Thanks! Report submitted.");
+                                alert('Thanks! Report submitted.');
                             } else {
-                                alert("Backend rejected report: " + (data.error || "Unknown error"));
+                                alert(`Backend rejected report: ${data.error || 'Unknown error'}`);
                             }
                         } catch {
-                            alert("Error contacting backend. Please try again later.");
+                            alert('Error contacting backend. Please try again later.');
                         }
                     }}
                 >
                     Report incorrect location
                 </button>
-
             </div>
-
         </div>
     );
-
-
-
 }
 
 export default DrawerTabContent;
